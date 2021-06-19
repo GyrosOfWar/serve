@@ -1,9 +1,54 @@
 <html>
-    <head>
-        <title>serve</title>
-    </head>
+  <head>
+    <title>serve</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/style.css" rel="stylesheet" />
+  </head>
 
-    <body>
-        <h1>Hi {{ name }}!</h1>
-    </body>
+  <body>
+    <main class="container ml-auto mr-auto">
+      <ul class="mt-4">
+        {% for entry in entries %}
+          <li
+            class="flex items-center text-blue-500 underline hover:text-blue-600"
+          >
+            {% if entry.is_directory %}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                />
+              </svg>
+            {% else %}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+            {% endif %}
+
+            <a href="{{ entry.path }}">{{ entry.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </main>
+  </body>
 </html>
