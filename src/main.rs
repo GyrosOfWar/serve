@@ -1,8 +1,8 @@
-use rocket::form::name::Name;
 use rocket::fs::NamedFile;
 use rocket::Either;
 use rocket_dyn_templates::Template;
 use serde::Serialize;
+use serde_json::json;
 use std::collections::HashMap;
 use std::env;
 use std::io;
@@ -38,16 +38,16 @@ async fn serve_styles() -> Option<NamedFile> {
 async fn serve_directory(mut path: PathBuf) -> io::Result<Either<NamedFile, Template>> {
     use tokio::fs;
 
-    if path.to_str() == Some("") {
-        path.push(".")
-    }
     if path.is_file() {
         log::info!("serving file {}", path.display());
         Ok(Either::Left(NamedFile::open(path).await?))
     } else {
+        if path.to_str() == Some("") {
+            path.push(".")
+        }
         log::info!("listing directory {}", path.display());
         let mut ctx = HashMap::new();
-        let mut stream = fs::read_dir(path).await?;
+        let mut stream = fs::read_dir(&path).await?;
 
         let mut entries = vec![];
         while let Ok(Some(entry)) = stream.next_entry().await {
@@ -66,9 +66,21 @@ async fn serve_directory(mut path: PathBuf) -> io::Result<Either<NamedFile, Temp
         }
 
         entries.sort();
+        let entries = json!(entries);
+        let base_dir = path.display().to_string();
+        let base_dir = json!(if base_dir == "." {
+            "/".into()
+        } else {
+            format!("/{}", base_dir)
+        });
 
+        if let Some(parent) = path.parent() {
+            log::info!("parent: {}", parent.display());
+            ctx.insert("parent", json!(parent.display().to_string()));
+        }
+        
         ctx.insert("entries", entries);
-        // ctx.insert("baseDir", path.display().to_string());
+        ctx.insert("base_dir", base_dir);
         Ok(Either::Right(Template::render("index", ctx)))
     }
 }
