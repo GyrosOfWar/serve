@@ -11,8 +11,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-mod range;
-
 #[derive(Debug, StructOpt)]
 pub struct Arguments {
     #[structopt(default_value = ".", parse(from_os_str))]
@@ -23,20 +21,43 @@ pub struct Arguments {
 pub struct DirEntry {
     pub name: String,
     pub is_directory: bool,
-    pub size: u64,
+    pub size: String,
     pub is_symlink: bool,
     pub path: String,
 }
 
 impl PartialOrd for DirEntry {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.name.partial_cmp(&other.name)
+        Some(
+            other
+                .is_directory
+                .cmp(&self.is_directory)
+                .then(self.name.cmp(&other.name)),
+        )
     }
 }
 
 impl Ord for DirEntry {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.name.cmp(&other.name)
+        self.is_directory
+            .cmp(&other.is_directory)
+            .then(self.name.cmp(&other.name))
+    }
+}
+
+pub fn format_byte_size(mut bytes: u64) -> String {
+    const SUFFIXES: &str = "kMGTPE";
+    if bytes < 1000 {
+        format!("{} B", bytes)
+    } else {
+        let mut iter = SUFFIXES.bytes().peekable();
+        while bytes >= 999_950 {
+            bytes /= 1000;
+            iter.next();
+        }
+        let suffix = *iter.peek().unwrap() as char;
+
+        format!("{:.2} {}B", bytes as f64 / 1000.0, suffix)
     }
 }
 
@@ -82,30 +103,37 @@ async fn serve_directory(
                 name: file_name,
                 path,
                 is_directory: metadata.is_dir(),
-                size: metadata.len(),
+                size: format_byte_size(metadata.len()),
                 is_symlink: metadata.file_type().is_symlink(),
             })
         }
 
         entries.sort();
-        let entries = json!(entries);
-        let base_dir = fs_path.display().to_string();
-        let base_dir = json!(if base_dir == "." {
-            "/".into()
-        } else {
-            format!("/{}", base_dir)
-        });
+        let mut base_dir = fs_path
+            .strip_prefix(&args.root_dir)
+            .map(Path::to_owned)
+            .unwrap_or_else(|_| fs_path);
+
+        if !base_dir.starts_with("/") {
+            base_dir = Path::new("/").join(base_dir);
+        }
+
+        let base_dir = base_dir.display().to_string();
 
         if let Some(parent) = url_path.parent() {
             if !is_root {
-                let parent = Path::new("/").join(parent);
+                let parent = if parent.starts_with("/") {
+                    parent.to_path_buf()
+                } else {
+                    Path::new("/").join(parent)
+                };
                 log::info!("parent: {}", parent.display());
                 ctx.insert("parent", json!(parent.display().to_string()));
             }
         }
 
-        ctx.insert("entries", entries);
-        ctx.insert("base_dir", base_dir);
+        ctx.insert("entries", json!(entries));
+        ctx.insert("base_dir", json!(base_dir));
         Ok(Either::Right(Template::render("index", ctx)))
     }
 }

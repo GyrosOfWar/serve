@@ -1,0 +1,11 @@
+[tasks.build_application]
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.build_css]
+command = "npx"
+args = ["tailwindcss", "-o", "templates/style.css", "--minify"]
+env = { NODE_ENV = "production" }
+
+[tasks.build]
+dependencies = ["build_application", "build_css"]

@@ -1,0 +1,2 @@
+#!/bin/bash
+npx tailwindcss -o templates/style.css --watch

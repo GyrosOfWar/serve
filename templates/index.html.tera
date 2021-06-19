@@ -13,12 +13,11 @@
       </h1>
       <ul class="mt-4 flex flex-col gap-1">
         {% if parent %}
-          <li>
+          <li class="inline-flex">
             <a
               href="{{ parent }}"
               class="
                 flex
-                w-auto
                 items-center
                 text-blue-500
                 underline
@@ -44,11 +43,10 @@
           </li>
         {% endif %} 
         {% for entry in entries %}
-        <li>
+        <li class="flex justify-between max-w-3xl">
           <a
             class="
               flex
-              w-auto
               items-center
               text-blue-500
               underline
@@ -88,6 +86,10 @@
             </svg>
             {% endif %} {{ entry.name }}
           </a>
+
+          <span>
+            {{entry.size}}
+          </span>
         </li>
         {% endfor %}
       </ul>
