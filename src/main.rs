@@ -13,6 +13,10 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub struct Arguments {
+    #[structopt(short, long, default_value = "8000")]
+    port: u16,
+
+    // TODO: basic auth
     #[structopt(default_value = ".", parse(from_os_str))]
     root_dir: PathBuf,
 }
@@ -24,6 +28,7 @@ pub struct DirEntry {
     pub size: String,
     pub is_symlink: bool,
     pub path: String,
+    pub last_modified: Option<String>,
 }
 
 impl PartialOrd for DirEntry {
@@ -98,6 +103,11 @@ async fn serve_directory(
                 .unwrap_or_else(|_| entry.path())
                 .display()
                 .to_string();
+            let formattter = timeago::Formatter::new();
+            let last_modified = metadata
+                .accessed()
+                .ok()
+                .map(|time| formattter.convert(time.elapsed().expect("should not fail")));
 
             entries.push(DirEntry {
                 name: file_name,
@@ -105,6 +115,7 @@ async fn serve_directory(
                 is_directory: metadata.is_dir(),
                 size: format_byte_size(metadata.len()),
                 is_symlink: metadata.file_type().is_symlink(),
+                last_modified,
             })
         }
 
@@ -140,12 +151,22 @@ async fn serve_directory(
 
 #[rocket::launch]
 fn run() -> _ {
+    use rocket::Config;
+
     let args = Arguments::from_args();
 
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
+    let config = Config {
+        port: args.port,
+        address: "0.0.0.0".parse().unwrap(),
+
+        ..Config::release_default()
+    };
+
     rocket::build()
+        .configure(config)
         .manage(args)
         .attach(Template::fairing())
         .mount("/", rocket::routes![serve_styles, serve_directory])

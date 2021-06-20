@@ -7,92 +7,110 @@
   </head>
 
   <body>
-    <main class="container ml-auto mr-auto px-2">
+    <main class="max-w-4xl ml-auto mr-auto px-2">
       <h1 class="mt-2 text-xl font-semibold">
         Content of folder '{{ base_dir }}'
       </h1>
-      <ul class="mt-4 flex flex-col gap-1">
-        {% if parent %}
-          <li class="inline-flex">
-            <a
-              href="{{ parent }}"
-              class="
-                flex
-                items-center
-                text-blue-500
-                underline
-                hover:text-blue-600
-              "
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+      <table class="mt-4 w-full">
+        <thead>
+          <tr>
+            <th class="text-left p-1">File</th>
+            <th class="text-left p-1">Last modified</th>
+            <th class="text-left p-1">Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if parent %}
+          <tr class="inline-flex">
+            <td class="p-1">
+              <a
+                href="{{ parent }}"
+                class="
+                  inline-flex
+                  items-center
+                  text-blue-500
+                  underline
+                  hover:text-blue-600
+                "
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back
-            </a>
-          </li>
-        {% endif %} 
-        {% for entry in entries %}
-        <li class="flex justify-between max-w-3xl">
-          <a
-            class="
-              flex
-              items-center
-              text-blue-500
-              underline
-              hover:text-blue-600
-            "
-            href="/{{ entry.path }}"
-          >
-            {% if entry.is_directory %}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-              />
-            </svg>
-            {% else %}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-              />
-            </svg>
-            {% endif %} {{ entry.name }}
-          </a>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Back
+              </a>
+            </td>
+          </tr>
+          {% endif %}
+          {% for entry in entries %}
+          <tr>
+            <td class="p-1">
+              <a
+                class="
+                  inline-flex
+                  items-center
+                  text-blue-500
+                  underline
+                  hover:text-blue-600
+                "
+                href="/{{ entry.path }}"
+              >
+                {% if entry.is_directory %}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                  />
+                </svg>
+                {% else %}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  />
+                </svg>
+                {% endif %}
+                {{ entry.name }}
+              </a>
+            </td>
 
-          <span>
-            {{entry.size}}
-          </span>
-        </li>
-        {% endfor %}
-      </ul>
+            <td class="p-1">
+              {{ entry.last_modified }}
+            </td>
+
+            <td class="p-1">
+              {{ entry.size }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </main>
   </body>
 </html>
