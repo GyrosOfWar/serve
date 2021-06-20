@@ -67,8 +67,16 @@ pub fn format_byte_size(mut bytes: u64) -> String {
 }
 
 #[rocket::get("/style.css")]
-async fn serve_styles() -> Option<NamedFile> {
-    NamedFile::open("./templates/style.css").await.ok()
+async fn serve_styles() -> Option<Either<NamedFile, &'static str>> {
+    if cfg!(debug_assertions) {
+        NamedFile::open("./templates/style.css")
+            .await
+            .ok()
+            .map(Either::Left)
+    } else {
+        let css = include_str!("../templates/style.css");
+        Some(Either::Right(css))
+    }
 }
 
 #[rocket::get("/<url_path..>")]
@@ -158,16 +166,33 @@ fn run() -> _ {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
+    let is_debug = cfg!(debug_assertions);
+    let default_config = if is_debug {
+        Config::debug_default()
+    } else {
+        Config::release_default()
+    };
+
     let config = Config {
         port: args.port,
         address: "0.0.0.0".parse().unwrap(),
 
-        ..Config::release_default()
+        ..default_config
     };
 
-    rocket::build()
-        .configure(config)
-        .manage(args)
-        .attach(Template::fairing())
-        .mount("/", rocket::routes![serve_styles, serve_directory])
+    let mut builder = rocket::build().configure(config).manage(args);
+
+    if is_debug {
+        let templates = Template::custom(|engine| {
+            engine
+                .tera
+                .add_raw_template("index", include_str!("../templates/index.html.tera"))
+                .unwrap();
+        });
+        builder = builder.attach(templates);
+    } else {
+        builder = builder.attach(Template::fairing());
+    }
+
+    builder.mount("/", rocket::routes![serve_styles, serve_directory])
 }
