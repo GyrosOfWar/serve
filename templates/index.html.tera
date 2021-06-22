@@ -8,15 +8,31 @@
 
   <body class="dark:bg-gray-900 dark:text-white">
     <main class="max-w-4xl ml-auto mr-auto px-2">
-      <h1 class="mt-2 text-xl font-semibold">
-        Content of folder '{{ base_dir }}'
+      <h1 class="mt-2 text-2xl font-semibold">
+        Content of folder {{ base_dir }}
       </h1>
+
+      <div class="flex gap-1 text-gray-600 dark:text-gray-300">
+        {% for entry in breadcrumbs %}
+          <span>
+            <a href="/{{entry}}" class="text-blue-500
+                  underline
+                  hover:text-blue-600
+                  dark:text-blue-300 
+                  dark:hover:text-blue-200">{{entry}}</a>
+            {% if not loop.last %}
+              &gt;
+            {% endif %}
+          </span>
+        {% endfor %}
+      </div>
+
       <table class="mt-4 w-full">
         <thead>
           <tr>
-            <th class="text-left p-1">File</th>
-            <th class="text-left p-1">Last modified</th>
-            <th class="text-left p-1">Size</th>
+            <th class="text-left p-1 border-b border-black border-opacity-25">File</th>
+            <th class="text-left p-1 border-b border-black border-opacity-25">Last modified</th>
+            <th class="text-right p-1 border-b border-black border-opacity-25">Size</th>
           </tr>
         </thead>
         <tbody>
@@ -108,7 +124,7 @@
               {{ entry.last_modified }}
             </td>
 
-            <td class="p-1">
+            <td class="p-1 text-right">
               {{ entry.size }}
             </td>
           </tr>

@@ -2,8 +2,8 @@ use crate::index::DirectoryIndex;
 use rocket::fs::NamedFile;
 use rocket::{Either, State};
 use rocket_dyn_templates::Template;
-use std::{env, io};
 use std::path::PathBuf;
+use std::{env, io};
 use structopt::StructOpt;
 
 mod index;

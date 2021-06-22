@@ -1,10 +1,16 @@
 use rocket_dyn_templates::Template;
 use serde::Serialize;
-use serde_json::json;
-use std::collections::HashMap;
 use std::io;
 use std::path::{Path, PathBuf};
 use tokio::fs;
+
+#[derive(Serialize, Debug)]
+struct Context {
+    entries: Vec<DirEntry>,
+    parent: Option<String>,
+    base_dir: String,
+    breadcrumbs: Vec<String>,
+}
 
 #[derive(Serialize, Debug, PartialEq, Eq)]
 struct DirEntry {
@@ -109,9 +115,9 @@ impl DirectoryIndex {
 
     pub async fn render_template(&self, is_root: bool) -> io::Result<Template> {
         let entries = self.list_entries().await?;
-        let mut ctx = HashMap::new();
+        // let mut ctx = HashMap::new();
 
-        ctx.insert("entries", json!(entries));
+        // ctx.insert("entries", json!(entries));
         let mut base_dir = self
             .fs_path
             .strip_prefix(&self.root_dir)
@@ -123,19 +129,41 @@ impl DirectoryIndex {
         }
 
         let base_dir = base_dir.display().to_string();
-        ctx.insert("base_dir", json!(base_dir));
+        // ctx.insert("base_dir", json!(base_dir));
 
-        if let Some(parent) = self.url_path.parent() {
-            if !is_root {
-                let parent = if parent.starts_with("/") {
-                    parent.to_path_buf()
+        let parent = self
+            .url_path
+            .parent()
+            .and_then(|parent| {
+                if !is_root {
+                    if parent.starts_with("/") {
+                        Some(parent.to_path_buf())
+                    } else {
+                        Some(Path::new("/").join(parent))
+                    }
                 } else {
-                    Path::new("/").join(parent)
-                };
-                log::info!("parent: {}", parent.display());
-                ctx.insert("parent", json!(parent.display().to_string()));
-            }
-        }
-        Ok(Template::render("index", ctx))
+                    None
+                }
+            })
+            .map(|path| path.display().to_string());
+
+        let breadcrumbs = self
+            .url_path
+            .components()
+            .flat_map(|c| match c {
+                std::path::Component::Normal(inner) => Some(inner.to_string_lossy().to_string()),
+                _ => None,
+            })
+            .collect();
+
+        Ok(Template::render(
+            "index",
+            Context {
+                base_dir,
+                parent,
+                entries,
+                breadcrumbs,
+            },
+        ))
     }
 }
