@@ -6,33 +6,24 @@
     <link href="/style.css" rel="stylesheet" />
   </head>
 
-  <body class="dark:bg-gray-900 dark:text-white">
+  <body class="dark:bg-black dark:text-white">
     <main class="max-w-4xl ml-auto mr-auto px-2">
       <h1 class="mt-2 text-2xl font-semibold">
         Content of folder {{ base_dir }}
       </h1>
 
-      <div class="flex gap-1 text-gray-600 dark:text-gray-300">
-        {% for entry in breadcrumbs %}
-          <span>
-            <a href="/{{entry}}" class="text-blue-500
-                  underline
-                  hover:text-blue-600
-                  dark:text-blue-300 
-                  dark:hover:text-blue-200">{{entry}}</a>
-            {% if not loop.last %}
-              &gt;
-            {% endif %}
-          </span>
-        {% endfor %}
-      </div>
-
       <table class="mt-4 w-full">
         <thead>
           <tr>
-            <th class="text-left p-1 border-b border-black border-opacity-25">File</th>
-            <th class="text-left p-1 border-b border-black border-opacity-25">Last modified</th>
-            <th class="text-right p-1 border-b border-black border-opacity-25">Size</th>
+            <th class="text-left p-1 border-b border-black border-opacity-25">
+              File
+            </th>
+            <th class="text-left p-1 border-b border-black border-opacity-25">
+              Last modified
+            </th>
+            <th class="text-right p-1 border-b border-black border-opacity-25">
+              Size
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -47,14 +38,13 @@
                   text-blue-500
                   underline
                   hover:text-blue-600
-                  dark:text-blue-300 
-                  dark:hover:text-blue-200
+                  dark:text-blue-300 dark:hover:text-blue-200
                 "
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4 mr-1"
-                  fill="none"
+                  fill="rgb(37, 99, 235)"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
@@ -69,8 +59,7 @@
               </a>
             </td>
           </tr>
-          {% endif %}
-          {% for entry in entries %}
+          {% endif %} {% for entry in entries %}
           <tr>
             <td class="p-1">
               <a
@@ -80,8 +69,7 @@
                   text-blue-500
                   underline
                   hover:text-blue-600
-                  dark:text-blue-300 
-                  dark:hover:text-blue-200
+                  dark:text-blue-300 dark:hover:text-blue-200
                 "
                 href="/{{ entry.path }}"
               >
@@ -89,7 +77,7 @@
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4 mr-1"
-                  fill="none"
+                  fill="rgb(37, 99, 235)"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >

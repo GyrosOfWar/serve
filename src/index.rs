@@ -9,7 +9,6 @@ struct Context {
     entries: Vec<DirEntry>,
     parent: Option<String>,
     base_dir: String,
-    breadcrumbs: Vec<String>,
 }
 
 #[derive(Serialize, Debug, PartialEq, Eq)]
@@ -147,22 +146,12 @@ impl DirectoryIndex {
             })
             .map(|path| path.display().to_string());
 
-        let breadcrumbs = self
-            .url_path
-            .components()
-            .flat_map(|c| match c {
-                std::path::Component::Normal(inner) => Some(inner.to_string_lossy().to_string()),
-                _ => None,
-            })
-            .collect();
-
         Ok(Template::render(
             "index",
             Context {
                 base_dir,
                 parent,
                 entries,
-                breadcrumbs,
             },
         ))
     }

@@ -13,9 +13,11 @@ pub struct Arguments {
     #[structopt(short, long, default_value = "8000")]
     port: u16,
 
-    // TODO: basic auth
     #[structopt(default_value = ".", parse(from_os_str))]
     root_dir: PathBuf,
+
+    #[structopt(short = "a", long = "auth")]
+    basic_auth_credentials: Option<String>
 }
 
 #[rocket::get("/style.css")]
