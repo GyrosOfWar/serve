@@ -114,9 +114,7 @@ impl DirectoryIndex {
 
     pub async fn render_template(&self, is_root: bool) -> io::Result<Template> {
         let entries = self.list_entries().await?;
-        // let mut ctx = HashMap::new();
 
-        // ctx.insert("entries", json!(entries));
         let mut base_dir = self
             .fs_path
             .strip_prefix(&self.root_dir)
@@ -128,7 +126,6 @@ impl DirectoryIndex {
         }
 
         let base_dir = base_dir.display().to_string();
-        // ctx.insert("base_dir", json!(base_dir));
 
         let parent = self
             .url_path
