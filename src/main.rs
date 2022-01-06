@@ -5,20 +5,20 @@ use rocket::{Either, State};
 use rocket_dyn_templates::Template;
 use std::path::PathBuf;
 use std::{env, io};
-use structopt::StructOpt;
+use clap::Parser;
 
 mod auth;
 mod index;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub struct Arguments {
-    #[structopt(short, long, default_value = "8000")]
+    #[clap(short, long, default_value = "8000")]
     port: u16,
 
-    #[structopt(default_value = ".", parse(from_os_str))]
+    #[clap(default_value = ".", parse(from_os_str))]
     root_dir: PathBuf,
 
-    #[structopt(short = "a", long = "auth")]
+    #[clap(short = 'a', long = "auth")]
     basic_auth_credentials: Option<String>,
 }
 
@@ -73,7 +73,7 @@ async fn serve_directory(
 fn run() -> _ {
     use rocket::Config;
 
-    let args = Arguments::from_args();
+    let args = Arguments::parse();
 
     env::set_var("RUST_LOG", "info");
     env_logger::init();
