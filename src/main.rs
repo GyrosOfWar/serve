@@ -1,11 +1,11 @@
 use crate::index::DirectoryIndex;
 use auth::BasicAuth;
+use clap::Parser;
 use rocket::fs::NamedFile;
 use rocket::{Either, State};
 use rocket_dyn_templates::Template;
 use std::path::PathBuf;
 use std::{env, io};
-use clap::Parser;
 
 mod auth;
 mod index;
@@ -15,7 +15,7 @@ pub struct Arguments {
     #[clap(short, long, default_value = "8000")]
     port: u16,
 
-    #[clap(default_value = ".", parse(from_os_str))]
+    #[clap(default_value = ".")]
     root_dir: PathBuf,
 
     #[clap(short = 'a', long = "auth")]
